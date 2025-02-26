@@ -1,0 +1,5 @@
+# Node modules folder (heavy files, install using package.json)
+node_modules/
+
+# Environment variables (sensitive data like API keys, DB passwords)
+.env

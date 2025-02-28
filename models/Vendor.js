@@ -1,19 +1,23 @@
 import mongoose from "mongoose";
 
 const vendorSchema = new mongoose.Schema({
-    shopName: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true }, // Vendor Login
-    password: { type: String, required: true, minlength: 8 },
-    address: { type: String, required: true },
-    phoneNumber: { type: String, required: true },
-    shopImg: { type: String, default: "default.jpg" },
-    pinLocation: { 
-      lat: { type: Number, required: true }, 
-      lng: { type: Number, required: true }
-    },
-    shopCategory: { type: String, required: true, enum: ["Car Mechanic", "Food Shop", "Mobile Shop", "Other"] }, 
-    products: [{ type: String, trim: true }],
-  }, { timestamps: true });
+  shopName: { type: String, required: true, trim: true },
+  email: { type: String, required: true, unique: true }, // Vendor Login
+  password: { type: String, required: true, minlength: 8 },
+  address: { type: String, required: true },
+  phoneNumber: { type: String, required: true },
+  shopImg: { type: String, default: "default.jpg" },
+  pinLocation: { type: String, required: true },
+  shopCategory: { type: String, required: true, trim: true },
+  products: [{ type: String, trim: true }],
+  responseHistory: [
+    {
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      action: String,
+      timestamp: { type: Date, default: Date.now }
+    }
+  ]
+});
 const vendor = mongoose.model('Vendor', vendorSchema);
 export default vendor;
 

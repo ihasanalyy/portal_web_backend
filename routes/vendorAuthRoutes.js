@@ -7,7 +7,7 @@ const router = express.Router();
 
 // vendor singup route
 router.post('/signup', async (req, res) => {
-    const { email, password, phoneNumber, address, shopName, shopCategory, pinLocation,products } = req.body;
+    const { email, password, phoneNumber, address, shopName, shopCategory, pinLocation, products } = req.body;
     console.log(req.body);
     if (!email || !password || !phoneNumber || !address || !shopName || !shopCategory || !pinLocation || !products) {
         return res.status(400).json({ message: "All fileds are required" });
@@ -28,11 +28,11 @@ router.post('/signup', async (req, res) => {
                 pinLocation,
                 products
             })
-           await newVendor.save();
+            await newVendor.save();
             return res.status(201).json({ message: "Vendor created successfully" });
         }
     } catch (error) {
-        res.status(400).json({ error: "Error creating vendor" });
+        res.status(400).json({ error: "Error creating vendor", details: error.message });
     }
 })
 
@@ -47,9 +47,9 @@ router.post('/login', async (req, res) => {
             if (!existingVendor || !(await bcrypt.compare(password, existingVendor.password))) {
                 return res.status(401).json({ message: "Invalid credentials" });
             } else if (existingVendor && (await bcrypt.compare(password, existingVendor.password))) {
-                const token = jwt.sign({ id: existingVendor._id }, process.env.SECRET_KEY, { expiresIn: '1h' });
-                res.header('authenticate', token);
-                return res.status(200).json({ message: "Login successful",token});
+                const token = jwt.sign({ id: existingVendor._id }, process.env.SECRET_KEY, { expiresIn: "1h" });
+                res.cookie("access_token", token, { httpOnly: true, secure: true, sameSite: "strict" });
+                res.status(200).json({ message: "Login successful" });
             }
         } catch (error) {
             return res.status(400).json({ error: "Error logging in", error });

@@ -1,17 +1,18 @@
 import mongoose from "mongoose";
 
 const userSchchema = new mongoose.Schema({
-    name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true, minlength: 6 },
-    phoneNumber: { type: String, required: true },
-    coins: { type: Number, default: 50 }, // Users get 50 coins on registration
-    searchHistory: [
-        {
-          query: String,
-          timestamp: { type: Date, default: Date.now }
-        }
-      ]
+  name: { type: String, required: true, trim: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true, minlength: 6 },
+  phoneNumber: { type: String, required: true, unique: true },
+  coins: { type: Number, default: 50 }, // Users get 50 coins on registration
+  registerationSource: { type: String, required: true, enum: ["whatsapp", "web"] },
+  searchHistory: [
+    {
+      query: String,
+      timestamp: { type: Date, default: Date.now }
+    }
+  ]
 });
 const User = mongoose.model('User', userSchchema);
 export default User;

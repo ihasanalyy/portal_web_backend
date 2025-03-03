@@ -25,8 +25,8 @@ connectDB();
 app.use('/api/user/auth', authRoutes);
 app.use('/api/vendor/auth', vendorAuthRoutes);
 app.use('/api/search', authMiddleware,searchRoutes);
-app.use('/api/vendor',authMiddleware,vendorCrudRoutes)
-app.use('/api/user',authMiddleware, userRoutes)
+app.use('/api/vendor',authMiddleware,vendorCrudRoutes);
+app.use('/api/user',authMiddleware, userRoutes);
 
 
 app.listen(PORT,() => console.log("Server running on port " + PORT));

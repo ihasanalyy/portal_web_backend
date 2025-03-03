@@ -28,6 +28,7 @@ const vendorSchema = new mongoose.Schema({
     }
   ]
 });
+vendorSchema.index({ pinLocation: "2dsphere" });
 const vendor = mongoose.model('Vendor', vendorSchema);
 export default vendor;
 

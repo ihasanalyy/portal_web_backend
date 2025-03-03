@@ -3,9 +3,9 @@ import User from "../models/User.js";
 
 export const search = async (req, res) => {
     const { query, latitude, longitude, radius } = req.body;
+    console.log(query,latitude,longitude,radius, "req.body")
     const userId = req.user.id;
 
-    console.log(query, "query");
     if (!query) return res.status(400).json({ message: "Search query is required" });
 
     try {
@@ -23,23 +23,26 @@ export const search = async (req, res) => {
 
         const vendors = await vendor.find(searchCriteria, "shopName shopCategory shopImg");
 
-        // Check if search history already contains this query
+        // Fetch user data once
         const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Check if search history already contains this query
         const alreadySearched = user.searchHistory.some(item => item.query.toLowerCase() === query.toLowerCase());
 
         if (!alreadySearched) {
-            await User.findByIdAndUpdate(userId, {
-                $push: { searchHistory: { query } }
-            });
+            user.searchHistory.push({ query });
+            await user.save(); // Directly save instead of separate update query
         }
 
         res.json(vendors);
     } catch (error) {
         console.error("Search Error:", error);
-        res.status(500).json({ message: "Error searching vendors" });
+        res.status(500).json({ message: "Error searching vendors", error: error.message });
     }
 };
-
 
 export const openShop = async (req, res) => {
     const userId = req.user.id;

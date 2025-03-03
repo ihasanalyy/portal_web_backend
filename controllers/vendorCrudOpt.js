@@ -66,10 +66,9 @@ export const vendorSignUp = async (req, res) => {
             return res.status(400).json({ message: "Vendor already exists" });
         } else {
             const hashPassword = await bcrypt.hash(password, 10);
-            const lng = pinLocation.coordinates[1]
-            const lat = pinLocation.coordinates[0]
+            const lng = pinLocation.coordinates[0]; // Extract latitude first
+            const lat = pinLocation.coordinates[1]; // Extract longitude second
             const locationData = await getLocationDetails(lat, lng);
-            console.log(locationData.city, "city")
             const newVendor = await Vendor.create({
                 email,
                 password: hashPassword,
@@ -78,7 +77,10 @@ export const vendorSignUp = async (req, res) => {
                 shopName,
                 shopCategory,
                 products,
-                pinLocation,
+                pinLocation: {
+                    type: "Point",
+                    coordinates: [lng, lat]
+                },
                 country: locationData.country,
                 city: locationData.city,
                 postalCode: locationData.postalCode

@@ -1,6 +1,7 @@
 import Vendor from "../models/Vendor.js";
 import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken';
+import { getLocationDetails } from "../utils/geoLocation.js";
 
 // deleteVendor function to delete a vendor shop
 export const deleteVendor = async (req, res) => {
@@ -12,7 +13,6 @@ export const deleteVendor = async (req, res) => {
         res.status(500).json({ message: "Error deleting vendor shop" });
     }
 }
-
 // updateVendor function to update a vendor shop
 export const updateVendor = async (req, res) => {
     try {
@@ -54,7 +54,7 @@ export const vendorLogin = async (req, res) => {
     }
 }
 // vendor sign up
-export const vendorSignUp = async (req,res) => {
+export const vendorSignUp = async (req, res) => {
     const { email, password, phoneNumber, address, shopName, shopCategory, pinLocation, products } = req.body;
     console.log(req.body);
     if (!email || !password || !phoneNumber || !address || !shopName || !shopCategory || !pinLocation || !products) {
@@ -66,6 +66,10 @@ export const vendorSignUp = async (req,res) => {
             return res.status(400).json({ message: "Vendor already exists" });
         } else {
             const hashPassword = await bcrypt.hash(password, 10);
+            const lng = pinLocation.coordinates[1]
+            const lat = pinLocation.coordinates[0]
+            const locationData = await getLocationDetails(lat, lng);
+            console.log(locationData.city, "city")
             const newVendor = await Vendor.create({
                 email,
                 password: hashPassword,
@@ -73,8 +77,11 @@ export const vendorSignUp = async (req,res) => {
                 address,
                 shopName,
                 shopCategory,
+                products,
                 pinLocation,
-                products
+                country: locationData.country,
+                city: locationData.city,
+                postalCode: locationData.postalCode
             })
             await newVendor.save();
             return res.status(201).json({ message: "Vendor created successfully" });

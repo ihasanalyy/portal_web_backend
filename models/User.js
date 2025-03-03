@@ -6,7 +6,7 @@ const userSchchema = new mongoose.Schema({
   password: { type: String, required: true, minlength: 6 },
   phoneNumber: { type: String, required: true, unique: true },
   coins: { type: Number, default: 50 }, // Users get 50 coins on registration
-  registerationSource: { type: String, required: true, enum: ["whatsapp", "web"] },
+  registrationSource: { type: String, required: true, enum: ["whatsapp", "web"] },
   searchHistory: [
     {
       query: String,

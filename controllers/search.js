@@ -2,22 +2,44 @@ import vendor from "../models/Vendor.js";
 import User from "../models/User.js";
 
 export const search = async (req, res) => {
-    const { query } = req.body;
+    const { query, latitude, longitude, radius } = req.body;
     const userId = req.user.id;
+
     console.log(query, "query");
     if (!query) return res.status(400).json({ message: "Search query is required" });
 
     try {
-        const vendors = await vendor.find({ products: { $regex: query, $options: "i" } }, "shopName shopCategory shopImg");
-        // Save search history
-        await User.findByIdAndUpdate(userId, {
-            $push: { searchHistory: { query } }
-        });
+        let searchCriteria = { products: { $regex: query, $options: "i" } };
+
+        // If location-based search is requested
+        if (latitude && longitude && radius) {
+            searchCriteria.pinLocation = {
+                $near: {
+                    $geometry: { type: "Point", coordinates: [parseFloat(longitude), parseFloat(latitude)] },
+                    $maxDistance: parseFloat(radius) * 1000, // Convert km to meters
+                },
+            };
+        }
+
+        const vendors = await vendor.find(searchCriteria, "shopName shopCategory shopImg");
+
+        // Check if search history already contains this query
+        const user = await User.findById(userId);
+        const alreadySearched = user.searchHistory.some(item => item.query.toLowerCase() === query.toLowerCase());
+
+        if (!alreadySearched) {
+            await User.findByIdAndUpdate(userId, {
+                $push: { searchHistory: { query } }
+            });
+        }
+
         res.json(vendors);
     } catch (error) {
+        console.error("Search Error:", error);
         res.status(500).json({ message: "Error searching vendors" });
     }
-}
+};
+
 
 export const openShop = async (req, res) => {
     const userId = req.user.id;
